@@ -22,7 +22,6 @@ type OkexWsConn struct {
 	host    string
 	path    string
 	symbol  eqsModels.EqsSymbol
-	id      string
 	OutChan chan interface{}
 	ErrChan chan error
 	wsConn  *eqsWebsocket.Connection
@@ -31,7 +30,7 @@ type OkexWsConn struct {
 /*
 使用默认地址, 大陆网络慎用
 */
-func NewDefauldOkexWsConn(symbol eqsModels.EqsSymbol, id string) *OkexWsConn {
+func NewDefauldOkexWsConn(symbol eqsModels.EqsSymbol) *OkexWsConn {
 	outChan := make(chan interface{}, 100)
 	errChan := make(chan error, 100)
 	return &OkexWsConn{
@@ -39,7 +38,6 @@ func NewDefauldOkexWsConn(symbol eqsModels.EqsSymbol, id string) *OkexWsConn {
 		host:    DefaultHost,
 		path:    DefaultPath,
 		symbol:  symbol,
-		id:      id,
 		OutChan: outChan,
 		ErrChan: errChan,
 	}
@@ -48,7 +46,7 @@ func NewDefauldOkexWsConn(symbol eqsModels.EqsSymbol, id string) *OkexWsConn {
 /*
 替换默认地址
 */
-func NewOkexWsConnWithHost(scheme string, host string, symbol eqsModels.EqsSymbol, id string) *OkexWsConn {
+func NewOkexWsConnWithHost(scheme string, host string, symbol eqsModels.EqsSymbol) *OkexWsConn {
 	outChan := make(chan interface{}, 100)
 	errChan := make(chan error, 100)
 	return &OkexWsConn{
@@ -56,7 +54,6 @@ func NewOkexWsConnWithHost(scheme string, host string, symbol eqsModels.EqsSymbo
 		host:    host,
 		path:    DefaultPath,
 		symbol:  symbol,
-		id:      id,
 		OutChan: outChan,
 		ErrChan: errChan,
 	}
