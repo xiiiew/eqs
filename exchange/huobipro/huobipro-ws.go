@@ -6,7 +6,7 @@ import (
 	"crypto/tls"
 	"encoding/binary"
 	"github.com/xiiiew/eqs/eqsWebsocket"
-	"github.com/xiiiew/eqs/models"
+	"github.com/xiiiew/eqs/eqsModels"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"io/ioutil"
@@ -22,7 +22,7 @@ type HuobiproWsConn struct {
 	scheme  string
 	host    string
 	path    string
-	symbol  models.EqsSymbol
+	symbol  eqsModels.EqsSymbol
 	id      string
 	OutChan chan interface{}
 	ErrChan chan error
@@ -32,7 +32,7 @@ type HuobiproWsConn struct {
 /*
 使用默认地址, 大陆网络慎用
 */
-func NewDefauldHuobiproWsConn(symbol models.EqsSymbol, id string) *HuobiproWsConn {
+func NewDefauldHuobiproWsConn(symbol eqsModels.EqsSymbol, id string) *HuobiproWsConn {
 	outChan := make(chan interface{}, 100)
 	errChan := make(chan error, 100)
 	return &HuobiproWsConn{
@@ -50,7 +50,7 @@ func NewDefauldHuobiproWsConn(symbol models.EqsSymbol, id string) *HuobiproWsCon
 替换默认地址
 api文档: https://huobiapi.github.io/docs/spot/v1/cn/#7c47ef3411
 */
-func NewHuobiproWsConnWithHost(scheme string, host string, symbol models.EqsSymbol, id string) *HuobiproWsConn {
+func NewHuobiproWsConnWithHost(scheme string, host string, symbol eqsModels.EqsSymbol, id string) *HuobiproWsConn {
 	outChan := make(chan interface{}, 100)
 	errChan := make(chan error, 100)
 	return &HuobiproWsConn{
