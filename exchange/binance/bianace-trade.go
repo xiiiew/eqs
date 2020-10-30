@@ -27,7 +27,7 @@ type BinanceTrade struct {
 	EL string `json:"e"`
 	E  int    `json:"E"`
 	SL string `json:"s"`
-	TL string `json:"t"`
+	TL int    `json:"t"`
 	PL string `json:"p"`
 	QL string `json:"q"`
 	BL int    `json:"b"`
@@ -37,7 +37,7 @@ type BinanceTrade struct {
 	M  bool   `json:"M"`
 }
 
-func (h *BinanceWsConn) StartMarketDetail() {
+func (h *BinanceWsConn) StartTrade() {
 	// 创建ws
 	for {
 		if h.createConnection() {
@@ -48,7 +48,7 @@ func (h *BinanceWsConn) StartMarketDetail() {
 
 	// 订阅
 	for {
-		if h.subscribeMarketDetail() {
+		if h.subscribeTrade() {
 			break
 		}
 	}
@@ -56,7 +56,7 @@ func (h *BinanceWsConn) StartMarketDetail() {
 	// ping
 	go h.ping()
 
-	go h.readMarketDetail()
+	go h.readTrade()
 
 	select {}
 }
@@ -64,7 +64,7 @@ func (h *BinanceWsConn) StartMarketDetail() {
 /*
 订阅频道
 */
-func (h *BinanceWsConn) subscribeMarketDetail() bool {
+func (h *BinanceWsConn) subscribeTrade() bool {
 	symbol := h.symbol.ToLowerWithSep("")
 	streamName := fmt.Sprintf("%s@trade", symbol)
 	message, _ := json.Marshal(map[string]interface{}{
@@ -82,9 +82,9 @@ func (h *BinanceWsConn) subscribeMarketDetail() bool {
 /*
 获取市场逐笔成交
 */
-func (h *BinanceWsConn) readMarketDetail() {
+func (h *BinanceWsConn) readTrade() {
 	defer func() {
-		go h.StartMarketDetail()
+		go h.StartTrade()
 	}()
 
 	for {

@@ -33,7 +33,7 @@ type OkexSpotTrade struct {
 	}
 }
 
-func (h *OkexWsConn) StartMarketDetail() {
+func (h *OkexWsConn) StartspotTrade() {
 	// 创建ws
 	for {
 		if h.createConnection() {
@@ -44,7 +44,7 @@ func (h *OkexWsConn) StartMarketDetail() {
 
 	// 订阅
 	for {
-		if h.subscribeMarketDetail() {
+		if h.subscribespotTrade() {
 			break
 		}
 	}
@@ -52,7 +52,7 @@ func (h *OkexWsConn) StartMarketDetail() {
 	// ping
 	go h.ping()
 
-	go h.readMarketDetail()
+	go h.readspotTrade()
 
 	select {}
 }
@@ -60,7 +60,7 @@ func (h *OkexWsConn) StartMarketDetail() {
 /*
 订阅频道
 */
-func (h *OkexWsConn) subscribeMarketDetail() bool {
+func (h *OkexWsConn) subscribespotTrade() bool {
 	symbol := h.symbol.ToUpperWithSep("-")
 	args := []string{
 		fmt.Sprintf("spot/trade:%s", symbol),
@@ -79,9 +79,9 @@ func (h *OkexWsConn) subscribeMarketDetail() bool {
 /*
 获取市场成交
 */
-func (h *OkexWsConn) readMarketDetail() {
+func (h *OkexWsConn) readspotTrade() {
 	defer func() {
-		go h.StartMarketDetail()
+		go h.StartspotTrade()
 	}()
 
 	for {
