@@ -48,7 +48,6 @@ func NewDefauldHuobiproWsConn(symbol eqsModels.EqsSymbol, id string) *HuobiproWs
 
 /*
 替换默认地址
-api文档: https://huobiapi.github.io/docs/spot/v1/cn/#7c47ef3411
 */
 func NewHuobiproWsConnWithHost(scheme string, host string, symbol eqsModels.EqsSymbol, id string) *HuobiproWsConn {
 	outChan := make(chan interface{}, 100)

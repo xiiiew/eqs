@@ -1,23 +1,28 @@
-package binance
+package Okex
 
 import (
+	"bytes"
+	"compress/flate"
 	"crypto/tls"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/xiiiew/eqs/eqsModels"
 	"github.com/xiiiew/eqs/eqsWebsocket"
+	"io/ioutil"
 	"net/url"
 	"time"
 )
 
 const DefaultScheme = "wss"
-const DefaultHost = "stream.binance.com:9443"
-const DefaultPath = "/ws"
+const DefaultHost = "real.okex.com:8443"
+const DefaultPath = "/ws/v3"
 
-type BinanceWsConn struct {
+type OkexWsConn struct {
 	scheme  string
 	host    string
 	path    string
 	symbol  eqsModels.EqsSymbol
+	id      string
 	OutChan chan interface{}
 	ErrChan chan error
 	wsConn  *eqsWebsocket.Connection
@@ -26,14 +31,15 @@ type BinanceWsConn struct {
 /*
 使用默认地址, 大陆网络慎用
 */
-func NewDefauldBinanceWsConn(symbol eqsModels.EqsSymbol) *BinanceWsConn {
+func NewDefauldOkexWsConn(symbol eqsModels.EqsSymbol, id string) *OkexWsConn {
 	outChan := make(chan interface{}, 100)
 	errChan := make(chan error, 100)
-	return &BinanceWsConn{
+	return &OkexWsConn{
 		scheme:  DefaultScheme,
 		host:    DefaultHost,
 		path:    DefaultPath,
 		symbol:  symbol,
+		id:      id,
 		OutChan: outChan,
 		ErrChan: errChan,
 	}
@@ -42,14 +48,15 @@ func NewDefauldBinanceWsConn(symbol eqsModels.EqsSymbol) *BinanceWsConn {
 /*
 替换默认地址
 */
-func NewBinanceWsConnWithHost(scheme string, host string, symbol eqsModels.EqsSymbol) *BinanceWsConn {
+func NewOkexWsConnWithHost(scheme string, host string, symbol eqsModels.EqsSymbol, id string) *OkexWsConn {
 	outChan := make(chan interface{}, 100)
 	errChan := make(chan error, 100)
-	return &BinanceWsConn{
+	return &OkexWsConn{
 		scheme:  scheme,
 		host:    host,
 		path:    DefaultPath,
 		symbol:  symbol,
+		id:      id,
 		OutChan: outChan,
 		ErrChan: errChan,
 	}
@@ -58,7 +65,7 @@ func NewBinanceWsConnWithHost(scheme string, host string, symbol eqsModels.EqsSy
 /*
 创建websocket连接
 */
-func (h *BinanceWsConn) createConnection() bool {
+func (h *OkexWsConn) createConnection() bool {
 	u := url.URL{
 		Scheme: h.scheme,
 		Host:   h.host,
@@ -87,7 +94,7 @@ func (h *BinanceWsConn) createConnection() bool {
 /*
 发送数据
 */
-func (h *BinanceWsConn) writeMessage(bytes []byte) bool {
+func (h *OkexWsConn) writeMessage(bytes []byte) bool {
 	err := h.wsConn.WriteMessage(bytes)
 	if err != nil {
 		h.ErrChan <- err
@@ -99,21 +106,34 @@ func (h *BinanceWsConn) writeMessage(bytes []byte) bool {
 /*
 读取数据
 */
-func (h *BinanceWsConn) readMessage() ([]byte, error) {
+func (h *OkexWsConn) readMessage() ([]byte, error) {
 	data, err := h.wsConn.ReadMessage()
 	if err != nil {
 		return nil, err
 	}
 
-	return data, err
+	return h.unzip(data)
+}
+
+/*
+解压
+*/
+func (h *OkexWsConn) unzip(bytesData []byte) ([]byte, error) {
+	reader := flate.NewReader(bytes.NewReader(bytesData))
+	unzipData, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	return unzipData, nil
 }
 
 /*
 ping
 */
-func (h *BinanceWsConn) ping() {
+func (h *OkexWsConn) ping() {
 	for {
-		msg := []byte("{\"method\": \"GET_PROPERTY\", \"params\":[\"combined\"],\"id\":2}")
+		msg := []byte(fmt.Sprintf("{\"ping\" : %d}", time.Now().Unix()))
 		if ! h.writeMessage(msg) {
 			return
 		}

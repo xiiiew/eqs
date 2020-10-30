@@ -80,7 +80,7 @@ func (h *HuobiproWsConn) subscribeMarketDetail() bool {
 }
 
 /*
-获取获取市场概要数据
+获取市场概要数据
 */
 func (h *HuobiproWsConn) readMarketDetail() {
 	defer func() {
