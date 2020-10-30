@@ -1,4 +1,4 @@
-module eqs
+module github.com/xiiiew/eqs
 
 go 1.13
 
